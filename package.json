@@ -1,0 +1,26 @@
+{
+  "name": "visitor-tracker-server",
+  "version": "1.0.0",
+  "description": "방문자 추적 시스템 - 간편 서버",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "echo 'No build step required'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "visitor",
+    "tracker",
+    "analytics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^9.2.2",
+    "cors": "^2.8.5"
+  }
+}

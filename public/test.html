@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테스트 페이지 - 방문자 추적</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 42px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        p {
+            color: #7f8c8d;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-box li {
+            padding: 8px 0;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .info-box li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .counter {
+            font-size: 24px;
+            color: #667eea;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 테스트 페이지</h1>
+        <p>이 페이지는 방문자 추적 시스템을 테스트하기 위한 페이지입니다.</p>
+
+        <div class="info-box">
+            <h3>📊 추적되는 정보</h3>
+            <ul>
+                <li>IP 주소</li>
+                <li>페이지 경로</li>
+                <li>방문 시간</li>
+                <li>브라우저 정보</li>
+                <li>운영체제</li>
+                <li>디바이스 타입</li>
+            </ul>
+        </div>
+
+        <div class="counter" id="visit-counter">
+            이 페이지를 방문한 횟수: <span id="count">0</span>회
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div style="margin-top: 30px;">
+            <button class="btn" onclick="trackVisit()">🔄 방문 기록하기</button>
+            <a href="/" class="btn btn-secondary">📊 대시보드 보기</a>
+        </div>
+
+        <div class="info-box" style="margin-top: 30px;">
+            <h3>💡 사용 방법</h3>
+            <p style="color: #555; margin-bottom: 15px;">
+                다른 웹페이지에서 방문자를 추적하려면 아래 스크립트를 추가하세요:
+            </p>
+            <code style="display: block; padding: 15px; background: #2c3e50; border-radius: 8px; text-align: left; overflow-x: auto;">
+&lt;script src="http://localhost:3000/tracker.js"&gt;&lt;/script&gt;
+            </code>
+        </div>
+    </div>
+
+    <script>
+        let visitCount = 0;
+
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function trackVisit() {
+            const sessionId = localStorage.getItem('session_id') || generateSessionId();
+            localStorage.setItem('session_id', sessionId);
+
+            fetch('/api/track', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page_path: window.location.pathname,
+                    query_string: window.location.search,
+                    session_id: sessionId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                visitCount++;
+                document.getElementById('count').textContent = visitCount;
+
+                const status = document.getElementById('status');
+                status.className = 'status success';
+                status.style.display = 'block';
+                status.textContent = '✅ 방문이 성공적으로 기록되었습니다!';
+
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 3000);
+            })
+            .catch(error => {
+                const status = document.getElementById('status');
+                status.className = 'status error';
+                status.style.display = 'block';
+                status.textContent = '❌ 오류: ' + error.message;
+            });
+        }
+
+        // 페이지 로드 시 자동으로 방문 기록
+        window.addEventListener('load', () => {
+            trackVisit();
+        });
+    </script>
+</body>
+</html>
